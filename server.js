@@ -27,6 +27,7 @@ const constrains = (req, res, next) => {
 };
 
 const port = process.env.PORT || 8080;
+const DB_URI = process.env.DB_URI || "mongodb://localhost:27017/images";
 
 //------------------------model------------------------------
 const postSchema = new mongoose.Schema({
@@ -58,7 +59,7 @@ app.post("/uploads", constrains, async (req, res) => {
 //------------------------running and DB connecting------------------------------
 (function start() {
   mongoose
-    .connect("mongodb://localhost:27017/images")
+    .connect(DB_URI)
     .then(() => {
       app.listen(port, () => {
         console.log("Connected to DB & server running on port: 8080");
