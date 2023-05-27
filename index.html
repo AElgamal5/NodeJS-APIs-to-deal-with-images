@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form method="post" id="forma" enctype="multipart/form-data">
+      <input type="file" / id="files" accept='.jpeg, .png, .jpg'>
+      <button type="submit">submit</button>
+    </form>
+    <hr />
+    <div id="images" style="width: 50%; margin: 0 auto"></div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const url = "http://localhost:8080/";
+
+        fetch(url)
+          .then((response) => response.json())
+          .then((photos) => {
+            const div = document.getElementById("images");
+
+            photos.forEach((data) => {
+              const img = document.createElement("img");
+              img.src = data.myFile;
+              div.appendChild(img);
+            });
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      });
+
+      function convertToBase64(file) {
+        return new Promise((resolve, reject) => {
+          const fileReader = new FileReader();
+          fileReader.readAsDataURL(file);
+          fileReader.onload = () => {
+            resolve(fileReader.result);
+          };
+          fileReader.onerror = (error) => {
+            reject(error);
+          };
+        });
+      }
+
+      document.getElementById("forma").onsubmit = async (e) => {
+        e.preventDefault();
+        const file = document.getElementById("files").files[0];
+        const base64 = await convertToBase64(file);
+        console.log(base64);
+
+        const url = "http://localhost:8080/uploads";
+        const data = { myFile: base64 };
+
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            console.log("Success:", result);
+            location.reload();
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      };
+    </script>
+  </body>
+</html>
